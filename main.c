@@ -120,8 +120,6 @@ void startingGreeting()
 
 }
 
-<<<<<<< HEAD
-=======
 
 i16 findSlashNInString(char *string, u16 stringLength) 
 {
@@ -135,16 +133,10 @@ i16 findSlashNInString(char *string, u16 stringLength)
 	return -1;
 }
 
->>>>>>> fbbe618 (no comments)
 void inputId(library *currentLibrary)
 {
     printf("Enter book ID: ");
     char userInput;
-<<<<<<< HEAD
-    char idMembers[maxIdLength];
-    u8 charactersCounter = 0;
-    while ((userInput = getchar()) != '\n') // ÌÛ Ñ×ÈÒÛÂÀÅÌ ÌÀÊÑÈÈÌÓÌ maxIdLength ÑÈÌÂÎËÀ, È ÅÑËÈ ÈÕ ÁÎËÜØÅ, ÒÎ ÒÓÏÎ ÊÈÄÀÅÌ ÎØÈÁÊÓ ÏÎËÜÇÎÂÀÒÅËÞ ×ÒÎ ÎÍ ÌÍÎÃÎ ÂÂÅË
-=======
     char idMembers[maxIdLength + 2]; //+2 because \n and \0
     fgets(idMembers, maxIdLength + 2, stdin);
     for (i16 i = 0; i < maxIdLength + 2; ++i) 
@@ -153,7 +145,6 @@ void inputId(library *currentLibrary)
     }
     /*
     while ((userInput = getchar()) != '\n')
->>>>>>> fbbe618 (no comments)
     {
         if (charactersCounter > maxIdLength || in("123456789", 9, userInput) == false)
         {
@@ -165,30 +156,6 @@ void inputId(library *currentLibrary)
         idMembers[charactersCounter] = userInput;
         charactersCounter++;
     }
-<<<<<<< HEAD
-
-    if (charactersCounter == 0)
-    {
-        printf("Select correct id (1-%d)!", maxAmountOfBooks);
-        inputId(currentLibrary);
-        return;
-    } else
-    {
-        switch (charactersCounter)
-        {
-        case 1:
-            printf("%d", typecastCharToInt(idMembers[0]));
-            break;
-        case 2:
-            break;
-        case 3:
-            break;
-        }
-    }
-
-
-    /*
-=======
     */
     i16 slashNPos = findSlashNInString(idMembers, maxIdLength + 1);
     if (slashNPos == -1) 
@@ -219,7 +186,6 @@ void inputId(library *currentLibrary)
     }
 
    /* 
->>>>>>> fbbe618 (no comments)
     if (isLibraryFull(currentLibrary))
     {
         printf("Library is already full!\n");
@@ -243,11 +209,6 @@ void inputId(library *currentLibrary)
 void inputOption(library *currentLibrary)
 {
     printf("Enter option (1-5): ");
-<<<<<<< HEAD
-    char userInput = getchar();
-    char nextCharacter = getchar();
-    if (nextCharacter != '\n')
-=======
     char userBuffer[3]; //HARDCODED!
     fgets(userBuffer, 3, stdin);
     if (userBuffer[0] == '\n')
@@ -257,29 +218,20 @@ void inputOption(library *currentLibrary)
         return;
     }
     if (userBuffer[1] != '\n')
->>>>>>> fbbe618 (no comments)
     {
         messageSelectCorrectOption;
         CLEAR_STDIN;
         inputOption(currentLibrary);
         return;
     }
-<<<<<<< HEAD
-    if (in("12345", 5, userInput) == false)
-=======
     if (in("12345", 5, userBuffer[0]) == false)
->>>>>>> fbbe618 (no comments)
     {
         messageSelectCorrectOption;
         inputOption(currentLibrary);
         return;
     }
 
-<<<<<<< HEAD
-    switch (userInput)
-=======
     switch (userBuffer[0])
->>>>>>> fbbe618 (no comments)
     {
     case '1':
         inputId(currentLibrary);
