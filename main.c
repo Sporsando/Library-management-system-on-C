@@ -5,13 +5,10 @@
 #include <math.h>
 
 
-
 typedef int8_t i8;
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef int16_t i16;
-
-
 
 #define maxAmountOfBooks 100
 #define maxStringLength 30
