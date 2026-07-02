@@ -124,14 +124,27 @@ void startingGreeting()
 
 i16 findSlashNInString(char *string, u16 stringLength) 
 {
-	for (i16 i = 0; i < stringLength; ++i) 
+    for (i16 i = 0; i < stringLength; ++i) 
+    {
+	if (string[i] == '\n') 
 	{
-		if (string[i] == '\n') 
-		{
-			return i;
-		}
+	    return i;
 	}
-	return -1;
+    }
+    return -1;
+}
+
+
+bool isStringInteger(char *string, u16 iterateAmount) 
+{
+    for (u16 i = 0; i < iterateAmount; ++i) 
+    {
+	if (in("0123456789", 10, string[i]) == false) 
+	{
+	    return false;
+	}
+    }
+    return true;
 }
 
 void inputId(library *currentLibrary)
@@ -161,28 +174,49 @@ void inputId(library *currentLibrary)
     i16 slashNPos = findSlashNInString(idMembers, maxIdLength + 1);
     if (slashNPos == -1) 
     {
-	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	    CLEAR_STDIN;
-	    inputId(currentLibrary);
-	    return;
+	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
+	CLEAR_STDIN;
+	inputId(currentLibrary);
+	return;
     }
 
     if (slashNPos == 0) 
     {
-	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	    inputId(currentLibrary);
-	    return;
+	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
+	inputId(currentLibrary);
+	return;
     }
-
 
     switch (slashNPos)
     {
     case 1:
-        printf("%d", typecastCharToInt(idMembers[0])); //WORKED CORRECTLY, BUT NEED TO USE THIS ID
+	if (isStringInteger(idMembers, 1) == false) 
+	{
+	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
+	    inputId(currentLibrary);
+	    return;
+	}
+        printf("%d\n", typecastCharToInt(idMembers[0])); //WORKED CORRECTLY, BUT NEED TO USE THIS ID
         break;
-    case 2: //SIMILAR TO CASE 1 BUT idMembers[0] AFTER CAST NEED TO MUPTILY BY 10 (*10)
+    case 2:
+	if (isStringInteger(idMembers, 2) == false) 
+	{
+	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
+	    inputId(currentLibrary);
+	    return;
+	}
+	printf("%d\n", typecastCharToInt(idMembers[0])*10 + typecastCharToInt(idMembers[1])); 
+	//SIMILAR TO CASE 1 BUT idMembers[0] AFTER CAST NEED TO MUPTILY BY 10 (*10)
         break;
-    case 3: //SIMILAR TO CASE 1 BUT idMembers[0] AFTER CAST NEED TO MUPTILY BY 10 (*100) AND idMembers[1] * 10
+    case 3:
+	if (isStringInteger(idMembers, 3) == false) 
+	{
+	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
+	    inputId(currentLibrary);
+	    return;
+	}
+	printf("%d\n", typecastCharToInt(idMembers[0])*100 + typecastCharToInt(idMembers[1]) * 10 + typecastCharToInt(idMembers[2]));
+	//SIMILAR TO CASE 1 BUT idMembers[0] AFTER CAST NEED TO MUPTILY BY 10 (*100) AND idMembers[1] * 10
         break;
     }
 
