@@ -10,8 +10,8 @@ typedef uint8_t u8;
 typedef uint16_t u16;
 typedef int16_t i16;
 
-#define maxAmountOfBooks 100
-#define maxStringLength 30
+#define maxAmountOfBooks 1000
+#define maxStringLength 50
 #define columnSeparator " |"
 #define columnSeparatorLength (sizeof(columnSeparator) / sizeof(char)) - 1
 #define edgeID_TITLE 3 + columnSeparatorLength
@@ -30,17 +30,27 @@ const u8 maxIdLength = (u8)(floor(log10(abs(maxAmountOfBooks))) + 1);
 
 typedef struct
 {
-    bool isEmpty;
     char title[maxStringLength];
     char author[maxStringLength];
     char category[maxStringLength];
+    bool isEmpty;
 
 } book;
 
+typedef struct 
+{
+    book inputBookValues;
+    i16 inputBookId;
+    u16 inputTitleLength;
+    u16 inputAuthorLength;
+    u16 inputCategoryLength;
+} inputBook;
+
 typedef struct
 {
-    int currentBooksAmount;
     book books[maxAmountOfBooks];
+    inputBook currentInputBook;
+    u16 currentBooksAmount;
     u16 maxBookTitleLength;
     u16 maxBookAuthorLength;
     u16 maxBookCategoryLength;
@@ -58,13 +68,13 @@ bool isBookIdInBoundaries(i8 bookIdToCheck)
     return true;
 }
 
-bool isLibraryFull(library *currentLibrary)
+void checkLibraryFilled(library *currentLibrary)
 {
     if (currentLibrary->currentBooksAmount == maxAmountOfBooks)
     {
-        return true;
+	printf("Library is already full!\n");
+	return;
     }
-    return false;
 }
 
 void copyString(char stringForCopy[], char stringToCopy[], u8 stringForCopyLength, u8 stringToCopyLength)
@@ -105,7 +115,7 @@ u8 typecastCharToDigit(char charToCast)
     return (u8)(charToCast - '0');
 }
 
-void printInstructions()
+void printInstructions(void)
 {
     printf("1. Add Book\n");
     printf("2. Display Books\n");
@@ -114,7 +124,7 @@ void printInstructions()
     printf("5. Exit\n");
 }
 
-void startingGreeting()
+void startingGreeting(void)
 {
     printf("Welcome to library management system!\n");
     printInstructions();
@@ -177,35 +187,26 @@ void inputId(library *currentLibrary)
 	return;
     }
 
-    i16 id = tryParseStringToInt(idMembers, slashNPos);
-    if (id == -1)
+    i16 bookId = tryParseStringToInt(idMembers, slashNPos);
+    if (bookId == -1)
     {
 	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
 	inputId(currentLibrary);
 	return;
     }
-    printf("%d\n", id); 
-
-
-   /* 
-    if (isLibraryFull(currentLibrary))
-    {
-        printf("Library is already full!\n");
-        return;
-    }
-
-    if (isBookIdInBoundaries(bookId) == false)
-    {
-        printf("Incorrect book id!\n");
-        return;
-    }
-
+    bookId--; //dicrement because we use id's which starts with 0    
+    printf("%d\n", bookId); 
+   
     if (currentLibrary->books[bookId].isEmpty == false)
     {
         printf("Place on this id is not empty!\n");
+	inputId(currentLibrary);
         return;
     }
-    */
+
+    currentLibrary->currentInputBook.inputBookId = bookId;
+    
+    
 }
 
 void inputOption(library *currentLibrary)
@@ -236,7 +237,8 @@ void inputOption(library *currentLibrary)
     switch (userBuffer[0])
     {
     case '1':
-        inputId(currentLibrary);
+	checkLibraryFilled(currentLibrary);
+	inputId(currentLibrary);
         break;
     case '2':
         break;
@@ -258,13 +260,13 @@ void printCharacterSpecificAmount(u16 amount, char characterToPrint)
     }
 }
 
-void addBook(library *currentLibrary, i8 bookId, char bookTitle[], char bookAuthor[], char bookCategory[], u8 bookTitleLength, u8 bookAuthorLength, u8 bookCategoryLength)
+void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAuthor[], char bookCategory[], u8 bookTitleLength, u8 bookAuthorLength, u8 bookCategoryLength)
 {
 
 
     copyString(currentLibrary->books[bookId].author, bookAuthor, maxStringLength, bookAuthorLength); //currentLibrary->books[bookId].author = bookAuthor
-    copyString(currentLibrary->books[bookId].title, bookTitle, maxStringLength, bookTitleLength); //currentLibrary->books[bookId].author = bookAuthor
-    copyString(currentLibrary->books[bookId].category, bookCategory, maxStringLength, bookCategoryLength); //currentLibrary->books[bookId].author = bookAuthor
+    copyString(currentLibrary->books[bookId].title, bookTitle, maxStringLength, bookTitleLength); //currentLibrary->books[bookId].title = bookTitle
+    copyString(currentLibrary->books[bookId].category, bookCategory, maxStringLength, bookCategoryLength); //currentLibrary->books[bookId].category = bookCategory
     currentLibrary->books[bookId].isEmpty = false;
     currentLibrary->currentBooksAmount--; // and there will be another function deleteBook, which will increment this value
 }
@@ -440,7 +442,7 @@ void printBooks(library *currentLibrary)
 
 
 
-int main()
+int main(void)
 {
     //initializing variables
     library mainLibrary;
