@@ -100,7 +100,7 @@ bool in(char string[], u16 stringLength, char characterToCheck)
     return false;
 }
 
-u8 typecastCharToInt(char charToCast)
+u8 typecastCharToDigit(char charToCast)
 {
     return (u8)(charToCast - '0');
 }
@@ -135,16 +135,19 @@ i16 findSlashNInString(char *string, u16 stringLength)
 }
 
 
-bool isStringInteger(char *string, u16 iterateAmount) 
+i16 tryParseStringToInt(char *string, u16 stringLength)
 {
-    for (u16 i = 0; i < iterateAmount; ++i) 
+    i16 parsedString = 0;
+    for (u16 i = 0; i < stringLength; ++i) 
     {
 	if (in("0123456789", 10, string[i]) == false) 
 	{
-	    return false;
+	    return -1;
 	}
+	parsedString += typecastCharToDigit(string[i]) * (i8)round(pow(10, stringLength - 1 - i)); 
+
     }
-    return true;
+    return parsedString;
 }
 
 void inputId(library *currentLibrary)
@@ -157,20 +160,7 @@ void inputId(library *currentLibrary)
     {
         printf("%d\n", idMembers[i]);
     }
-    /*
-    while ((userInput = getchar()) != '\n')
-    {
-        if (charactersCounter > maxIdLength || in("123456789", 9, userInput) == false)
-        {
-            printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-            CLEAR_STDIN;
-            inputId(currentLibrary);
-            return;
-        }
-        idMembers[charactersCounter] = userInput;
-        charactersCounter++;
-    }
-    */
+    
     i16 slashNPos = findSlashNInString(idMembers, maxIdLength + 1);
     if (slashNPos == -1) 
     {
@@ -187,38 +177,15 @@ void inputId(library *currentLibrary)
 	return;
     }
 
-    switch (slashNPos)
+    i16 id = tryParseStringToInt(idMembers, slashNPos);
+    if (id == -1)
     {
-    case 1:
-	if (isStringInteger(idMembers, 1) == false) 
-	{
-	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	    inputId(currentLibrary);
-	    return;
-	}
-        printf("%d\n", typecastCharToInt(idMembers[0])); //WORKED CORRECTLY, BUT NEED TO USE THIS ID
-        break;
-    case 2:
-	if (isStringInteger(idMembers, 2) == false) 
-	{
-	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	    inputId(currentLibrary);
-	    return;
-	}
-	printf("%d\n", typecastCharToInt(idMembers[0])*10 + typecastCharToInt(idMembers[1])); 
-	//SIMILAR TO CASE 1 BUT idMembers[0] AFTER CAST NEED TO MUPTILY BY 10 (*10)
-        break;
-    case 3:
-	if (isStringInteger(idMembers, 3) == false) 
-	{
-	    printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	    inputId(currentLibrary);
-	    return;
-	}
-	printf("%d\n", typecastCharToInt(idMembers[0])*100 + typecastCharToInt(idMembers[1]) * 10 + typecastCharToInt(idMembers[2]));
-	//SIMILAR TO CASE 1 BUT idMembers[0] AFTER CAST NEED TO MUPTILY BY 10 (*100) AND idMembers[1] * 10
-        break;
+	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
+	inputId(currentLibrary);
+	return;
     }
+    printf("%d\n", id); 
+
 
    /* 
     if (isLibraryFull(currentLibrary))
