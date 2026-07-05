@@ -12,9 +12,10 @@ typedef int16_t i16;
 
 #define maxAmountOfBooks 1000
 #define maxStringLength 50
+#define fgetsAdder 2
 #define columnSeparator " |"
 #define columnSeparatorLength (sizeof(columnSeparator) / sizeof(char)) - 1
-#define edgeID_TITLE 3 + columnSeparatorLength
+#define edgeID_TITLE maxIdLength + columnSeparatorLength
 #define edgeTITLE_AUTHOR(currentLibrary) edgeID_TITLE + (titleLength > (currentLibrary)->maxBookTitleLength) ? titleLength : (currentLibrary)->maxBookTitleLength + columnSeparatorLength
 #define edgeAUTHOR_CATEGORY(currentLibrary) edgeTITLE_AUTHOR((currentLibrary)) + (authorLength > (currentLibrary)->maxBookAuthorLength) ? authorLength : (currentLibrary)->maxBookAuthorLength + columnSeparatorLength
 
@@ -39,7 +40,9 @@ typedef struct
 
 typedef struct 
 {
-    book inputBookValues;
+    char title[maxStringLength + fgetsAdder];
+    char author[maxStringLength + fgetsAdder];
+    char category[maxStringLength + fgetsAdder];
     i16 inputBookId;
     u16 inputTitleLength;
     u16 inputAuthorLength;
@@ -164,14 +167,10 @@ void inputId(library *currentLibrary)
 {
     printf("Enter Book ID: ");
     char userInput;
-    char idMembers[maxIdLength + 2]; //+2 because \n and \0
-    fgets(idMembers, maxIdLength + 2, stdin);
-    for (i16 i = 0; i < maxIdLength + 2; ++i) 
-    {
-        printf("%d\n", idMembers[i]);
-    }
-    
-    i16 slashNPos = findSlashNInString(idMembers, maxIdLength + 1);
+    char idMembers[maxIdLength + fgetsAdder]; //+2 because \n and \0
+    fgets(idMembers, maxIdLength + fgetsAdder, stdin);
+
+    i16 slashNPos = findSlashNInString(idMembers, maxIdLength + fgetsAdder);
     if (slashNPos == -1) 
     {
 	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
@@ -195,7 +194,6 @@ void inputId(library *currentLibrary)
 	return;
     }
     bookId--; //dicrement because we use id's which starts with 0    
-    printf("%d\n", bookId); 
    
     if (currentLibrary->books[bookId].isEmpty == false)
     {
@@ -212,12 +210,10 @@ void inputId(library *currentLibrary)
 void inputTitle(library *currentLibrary) 
 {
     printf("Enter Book Title (max %d symbols): ", maxStringLength);
-    char inputBuffer[maxStringLength];
-    fgets(inputBuffer, maxStringLength, stdin);
+    fgets(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder, stdin);
 
 
-    i16 slashNPos = findSlashNInString(inputBuffer, maxStringLength);
-
+    i16 slashNPos = findSlashNInString(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder);
     if (slashNPos == 0) 
     {
 	printf("Enter correct book title!\n");
@@ -228,13 +224,13 @@ void inputTitle(library *currentLibrary)
     if (slashNPos == -1) 
     {
 	printf("Enter correct book title (max %d symbols)!\n", maxStringLength);
+	CLEAR_STDIN;
 	inputTitle(currentLibrary);
 	return;
     }
+    currentLibrary->currentInputBook.inputTitleLength = findStringLength(currentLibrary->currentInputBook.title);
 
-    //copyString(currentLibrary->inputBook
 
-    
 
 }
 
@@ -268,6 +264,8 @@ void inputOption(library *currentLibrary)
     case '1':
 	checkLibraryFilled(currentLibrary);
 	inputId(currentLibrary);
+	inputTitle(currentLibrary);
+	
         break;
     case '2':
         break;
@@ -494,6 +492,7 @@ int main(void)
     }
     startingGreeting();
     inputOption(&mainLibrary);
+
     //IN INPUT THE ID VALUE WILL GET DICREMENT: e.g. "ENTER BOOK ID (1-100)" WILL OUTPUT ONLY 0-99 values!
     // there is no matter for any input from user, because program only reads first character (and some concrete other)!
     addBook(&mainLibrary, 1, "testBook", "me", "sci-fi", (sizeof("testbook") / sizeof(char)), (sizeof("me") / sizeof(char)), (sizeof("sci-fi") / sizeof(char)));
