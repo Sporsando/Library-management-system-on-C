@@ -13,19 +13,27 @@ typedef int16_t i16;
 #define maxAmountOfBooks 1000
 #define maxStringLength 50
 #define fgetsAdder 2
+
+#define messageSelectCorrectOption printf("Select correct option (1-5)!\n")
+
 #define columnSeparator " |"
 #define columnSeparatorLength (sizeof(columnSeparator) / sizeof(char)) - 1
 #define edgeID_TITLE maxIdLength + columnSeparatorLength
 #define edgeTITLE_AUTHOR(currentLibrary) edgeID_TITLE + (titleLength > (currentLibrary)->maxBookTitleLength) ? titleLength : (currentLibrary)->maxBookTitleLength + columnSeparatorLength
 #define edgeAUTHOR_CATEGORY(currentLibrary) edgeTITLE_AUTHOR((currentLibrary)) + (authorLength > (currentLibrary)->maxBookAuthorLength) ? authorLength : (currentLibrary)->maxBookAuthorLength + columnSeparatorLength
+
 #define selectCorrectId printf("Select correct id (1-%d)!\n", maxAmountOfBooks); \
 	inputId(currentLibrary); \
 	return
 
+#define selectCorrectOption messageSelectCorrectOption; \
+        inputOption(currentLibrary); \
+        return
+
+
 #define CLEAR_STDIN char input; \
     while ((input = getchar()) != '\n' && input != EOF)
 
-#define messageSelectCorrectOption printf("Select correct option (1-5)!\n")
 
 const u8 titleLength = (sizeof("TITLE") / sizeof(char)) - 1;
 const u8 authorLength = (sizeof("AUTHOR") / sizeof(char)) - 1;
@@ -47,9 +55,9 @@ typedef struct
     char author[maxStringLength + fgetsAdder];
     char category[maxStringLength + fgetsAdder];
     i16 inputBookId;
-    u16 inputTitleLength;
-    u16 inputAuthorLength;
-    u16 inputCategoryLength;
+    u8 inputTitleLength;
+    u8 inputAuthorLength;
+    u8 inputCategoryLength;
 } inputBook;
 
 typedef struct
@@ -287,24 +295,14 @@ void inputOption(library *currentLibrary)
     printf("Enter option (1-5): ");
     char userBuffer[3]; //HARDCODED!
     fgets(userBuffer, 3, stdin);
-    if (userBuffer[0] == '\n')
+    if (userBuffer[0] == '\n' || in("12345", 5, userBuffer[0]) == false)
     {
-        messageSelectCorrectOption;
-        inputOption(currentLibrary);
-        return;
+	selectCorrectOption;
     }
     if (userBuffer[1] != '\n')
     {
-        messageSelectCorrectOption;
         CLEAR_STDIN;
-        inputOption(currentLibrary);
-        return;
-    }
-    if (in("12345", 5, userBuffer[0]) == false)
-    {
-        messageSelectCorrectOption;
-        inputOption(currentLibrary);
-        return;
+	selectCorrectOption;
     }
 
     switch (userBuffer[0])
@@ -315,6 +313,7 @@ void inputOption(library *currentLibrary)
 	inputString(currentLibrary, 1);
 	inputString(currentLibrary, 2);
 	inputString(currentLibrary, 3);
+	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
         break;
     case '2':
         break;
