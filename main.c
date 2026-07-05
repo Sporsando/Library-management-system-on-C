@@ -94,7 +94,7 @@ void copyString(char stringForCopy[], char stringToCopy[], u8 stringForCopyLengt
 int findStringLength(char stringFind[])
 {
     int length = 0;
-    while (stringFind[length] != '\0') length++;
+    while (stringFind[length] != '\0' && stringFind[length] != '\n') length++;
     return length;
 }
 
@@ -162,7 +162,7 @@ i16 tryParseStringToInt(char *string, u16 stringLength)
 
 void inputId(library *currentLibrary)
 {
-    printf("Enter book ID: ");
+    printf("Enter Book ID: ");
     char userInput;
     char idMembers[maxIdLength + 2]; //+2 because \n and \0
     fgets(idMembers, maxIdLength + 2, stdin);
@@ -209,6 +209,35 @@ void inputId(library *currentLibrary)
     
 }
 
+void inputTitle(library *currentLibrary) 
+{
+    printf("Enter Book Title (max %d symbols): ", maxStringLength);
+    char inputBuffer[maxStringLength];
+    fgets(inputBuffer, maxStringLength, stdin);
+
+
+    i16 slashNPos = findSlashNInString(inputBuffer, maxStringLength);
+
+    if (slashNPos == 0) 
+    {
+	printf("Enter correct book title!\n");
+	inputTitle(currentLibrary);
+	return;
+    }
+
+    if (slashNPos == -1) 
+    {
+	printf("Enter correct book title (max %d symbols)!\n", maxStringLength);
+	inputTitle(currentLibrary);
+	return;
+    }
+
+    //copyString(currentLibrary->inputBook
+
+    
+
+}
+
 void inputOption(library *currentLibrary)
 {
     printf("Enter option (1-5): ");
@@ -245,10 +274,10 @@ void inputOption(library *currentLibrary)
     case '3':
         break;
     case '4':
+	
         break;
     case '5':
-        break;
-
+	exit(0);
     }
 }
 
@@ -258,6 +287,12 @@ void printCharacterSpecificAmount(u16 amount, char characterToPrint)
     {
         printf("%c", characterToPrint);
     }
+}
+
+void deleteBook(library *currentLibrary, i16 bookId) 
+{
+    currentLibrary->books[bookId].isEmpty = true;
+    currentLibrary->currentBooksAmount++;
 }
 
 void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAuthor[], char bookCategory[], u8 bookTitleLength, u8 bookAuthorLength, u8 bookCategoryLength)
