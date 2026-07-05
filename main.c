@@ -197,30 +197,88 @@ void inputId(library *currentLibrary)
     
 }
 
-void inputTitle(library *currentLibrary) 
+
+
+void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - author, 3 - category 
 {
-    printf("Enter Book Title (max %d symbols): ", maxStringLength);
-    fgets(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder, stdin);
+    switch (choosedInput) 
+    {
+    case 1:
+	printf("Enter Book Title (max %d symbols): ", maxStringLength);
+	fgets(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder, stdin);
+	break;
+    case 2:
+	printf("Enter Book Author (max %d symbols): ", maxStringLength);
+	fgets(currentLibrary->currentInputBook.author, maxStringLength + fgetsAdder, stdin);
+	break;
+    case 3:
+	printf("Enter Book Category (max %d symbols): ", maxStringLength);
+	fgets(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder, stdin);
+	break;
+    }
 
 
-    i16 slashNPos = findSlashNInString(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder);
+    i16 slashNPos;
+    switch (choosedInput) 
+    {
+    case 1:
+	slashNPos = findSlashNInString(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder);
+	break;
+    case 2:
+	slashNPos = findSlashNInString(currentLibrary->currentInputBook.author, maxStringLength + fgetsAdder);
+	break;
+    case 3:
+	slashNPos = findSlashNInString(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder);
+	break;
+    }
     if (slashNPos == 0) 
     {
-	printf("Enter correct book title!\n");
-	inputTitle(currentLibrary);
+	switch (choosedInput) 
+	{
+	case 1:
+	    printf("Enter correct book title!\n");
+	    break;
+	case 2:
+	    printf("Enter correct book author!\n");
+	    break;
+	case 3:
+	    printf("Enter correct book category!\n");
+	    break;
+	}
+	inputString(currentLibrary, choosedInput);
 	return;
     }
 
     if (slashNPos == -1) 
     {
-	printf("Enter correct book title (max %d symbols)!\n", maxStringLength);
+	switch (choosedInput) 
+	{
+	case 1:
+	    printf("Enter correct book title (max %d symbols)!\n", maxStringLength);
+	    break;
+	case 2:
+	    printf("Enter correct book author (max %d symbols)!\n", maxStringLength);
+	    break;
+	case 3:
+	    printf("Enter correct book category (max %d symbols)!\n", maxStringLength);
+	    break;
+	}
 	CLEAR_STDIN;
-	inputTitle(currentLibrary);
+	inputString(currentLibrary, choosedInput);
 	return;
     }
-    currentLibrary->currentInputBook.inputTitleLength = findStringLength(currentLibrary->currentInputBook.title);
-
-
+    switch (choosedInput) 
+    {
+    case 1:
+	currentLibrary->currentInputBook.inputTitleLength = findStringLength(currentLibrary->currentInputBook.title);
+	break;
+    case 2:
+	currentLibrary->currentInputBook.inputAuthorLength = findStringLength(currentLibrary->currentInputBook.author);
+	break;
+    case 3:
+	currentLibrary->currentInputBook.inputCategoryLength = findStringLength(currentLibrary->currentInputBook.category);
+	break;
+    }
 
 }
 
@@ -254,8 +312,9 @@ void inputOption(library *currentLibrary)
     case '1':
 	checkLibraryFilled(currentLibrary);
 	inputId(currentLibrary);
-	inputTitle(currentLibrary);
-	
+	inputString(currentLibrary, 1);
+	inputString(currentLibrary, 2);
+	inputString(currentLibrary, 3);
         break;
     case '2':
         break;
