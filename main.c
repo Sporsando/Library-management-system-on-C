@@ -18,6 +18,9 @@ typedef int16_t i16;
 #define edgeID_TITLE maxIdLength + columnSeparatorLength
 #define edgeTITLE_AUTHOR(currentLibrary) edgeID_TITLE + (titleLength > (currentLibrary)->maxBookTitleLength) ? titleLength : (currentLibrary)->maxBookTitleLength + columnSeparatorLength
 #define edgeAUTHOR_CATEGORY(currentLibrary) edgeTITLE_AUTHOR((currentLibrary)) + (authorLength > (currentLibrary)->maxBookAuthorLength) ? authorLength : (currentLibrary)->maxBookAuthorLength + columnSeparatorLength
+#define selectCorrectId printf("Select correct id (1-%d)!\n", maxAmountOfBooks); \
+	inputId(currentLibrary); \
+	return
 
 #define CLEAR_STDIN char input; \
     while ((input = getchar()) != '\n' && input != EOF)
@@ -173,35 +176,22 @@ void inputId(library *currentLibrary)
     i16 slashNPos = findSlashNInString(idMembers, maxIdLength + fgetsAdder);
     if (slashNPos == -1) 
     {
-	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
 	CLEAR_STDIN;
-	inputId(currentLibrary);
-	return;
+	selectCorrectId;
     }
 
     if (slashNPos == 0) 
     {
-	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	inputId(currentLibrary);
-	return;
+	selectCorrectId;
     }
 
     i16 bookId = tryParseStringToInt(idMembers, slashNPos);
-    if (bookId == -1)
+    if (bookId == -1 || currentLibrary->books[bookId].isEmpty == false)
     {
-	printf("Select correct id (1-%d)!\n", maxAmountOfBooks);
-	inputId(currentLibrary);
-	return;
+	selectCorrectId;
     }
     bookId--; //dicrement because we use id's which starts with 0    
    
-    if (currentLibrary->books[bookId].isEmpty == false)
-    {
-        printf("Place on this id is not empty!\n");
-	inputId(currentLibrary);
-        return;
-    }
-
     currentLibrary->currentInputBook.inputBookId = bookId;
     
     
