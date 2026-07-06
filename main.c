@@ -174,157 +174,14 @@ i16 tryParseStringToInt(char *string, u16 stringLength)
     return parsedString;
 }
 
-void inputId(library *currentLibrary)
+void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAuthor[], char bookCategory[], u8 bookTitleLength, u8 bookAuthorLength, u8 bookCategoryLength)
 {
-    printf("Enter Book ID: ");
-    char userInput;
-    char idMembers[maxIdLength + fgetsAdder]; //+2 because \n and \0
-    fgets(idMembers, maxIdLength + fgetsAdder, stdin);
 
-    i16 slashNPos = findSlashNInString(idMembers, maxIdLength + fgetsAdder);
-    if (slashNPos == -1) 
-    {
-	CLEAR_STDIN;
-	selectCorrectId;
-    }
-
-    if (slashNPos == 0) 
-    {
-	selectCorrectId;
-    }
-
-    i16 bookId = tryParseStringToInt(idMembers, slashNPos);
-    if (bookId == -1 || currentLibrary->books[bookId].isEmpty == false)
-    {
-	selectCorrectId;
-    }
-    bookId--; //dicrement because we use id's which starts with 0    
-   
-    currentLibrary->currentInputBook.inputBookId = bookId;
-    
-    
-}
-
-
-
-void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - author, 3 - category 
-{
-    switch (choosedInput) 
-    {
-    case 1:
-	printf("Enter Book Title (max %d symbols): ", maxStringLength);
-	fgets(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder, stdin);
-	break;
-    case 2:
-	printf("Enter Book Author (max %d symbols): ", maxStringLength);
-	fgets(currentLibrary->currentInputBook.author, maxStringLength + fgetsAdder, stdin);
-	break;
-    case 3:
-	printf("Enter Book Category (max %d symbols): ", maxStringLength);
-	fgets(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder, stdin);
-	break;
-    }
-
-
-    i16 slashNPos;
-    switch (choosedInput) 
-    {
-    case 1:
-	slashNPos = findSlashNInString(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder);
-	break;
-    case 2:
-	slashNPos = findSlashNInString(currentLibrary->currentInputBook.author, maxStringLength + fgetsAdder);
-	break;
-    case 3:
-	slashNPos = findSlashNInString(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder);
-	break;
-    }
-    if (slashNPos == 0) 
-    {
-	switch (choosedInput) 
-	{
-	case 1:
-	    printf("Enter correct book title!\n");
-	    break;
-	case 2:
-	    printf("Enter correct book author!\n");
-	    break;
-	case 3:
-	    printf("Enter correct book category!\n");
-	    break;
-	}
-	inputString(currentLibrary, choosedInput);
-	return;
-    }
-
-    if (slashNPos == -1) 
-    {
-	switch (choosedInput) 
-	{
-	case 1:
-	    printf("Enter correct book title (max %d symbols)!\n", maxStringLength);
-	    break;
-	case 2:
-	    printf("Enter correct book author (max %d symbols)!\n", maxStringLength);
-	    break;
-	case 3:
-	    printf("Enter correct book category (max %d symbols)!\n", maxStringLength);
-	    break;
-	}
-	CLEAR_STDIN;
-	inputString(currentLibrary, choosedInput);
-	return;
-    }
-    switch (choosedInput) 
-    {
-    case 1:
-	currentLibrary->currentInputBook.inputTitleLength = findStringLength(currentLibrary->currentInputBook.title);
-	break;
-    case 2:
-	currentLibrary->currentInputBook.inputAuthorLength = findStringLength(currentLibrary->currentInputBook.author);
-	break;
-    case 3:
-	currentLibrary->currentInputBook.inputCategoryLength = findStringLength(currentLibrary->currentInputBook.category);
-	break;
-    }
-
-}
-
-void inputOption(library *currentLibrary)
-{
-    printf("Enter option (1-5): ");
-    char userBuffer[3]; //HARDCODED!
-    fgets(userBuffer, 3, stdin);
-    if (userBuffer[0] == '\n' || in("12345", 5, userBuffer[0]) == false)
-    {
-	selectCorrectOption;
-    }
-    if (userBuffer[1] != '\n')
-    {
-        CLEAR_STDIN;
-	selectCorrectOption;
-    }
-
-    switch (userBuffer[0])
-    {
-    case '1':
-	checkLibraryFilled(currentLibrary);
-	inputId(currentLibrary);
-	inputString(currentLibrary, 1);
-	inputString(currentLibrary, 2);
-	inputString(currentLibrary, 3);
-	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
-        break;
-    case '2':
-        break;
-    case '3':
-        break;
-    case '4':
-	
-        break;
-    case '5':
-	exit(0);
-    }
+    copyString(currentLibrary->books[bookId].title, bookTitle, maxStringLength, bookTitleLength); //currentLibrary->books[bookId].title = bookTitle
+    copyString(currentLibrary->books[bookId].author, bookAuthor, maxStringLength, bookAuthorLength); //currentLibrary->books[bookId].author = bookAuthor
+    copyString(currentLibrary->books[bookId].category, bookCategory, maxStringLength, bookCategoryLength); //currentLibrary->books[bookId].category = bookCategory
+    currentLibrary->books[bookId].isEmpty = false;
+    currentLibrary->currentBooksAmount--; // and there will be another function deleteBook, which will increment this value
 }
 
 void printCharacterSpecificAmount(u16 amount, char characterToPrint)
@@ -333,23 +190,6 @@ void printCharacterSpecificAmount(u16 amount, char characterToPrint)
     {
         printf("%c", characterToPrint);
     }
-}
-
-void deleteBook(library *currentLibrary, i16 bookId) 
-{
-    currentLibrary->books[bookId].isEmpty = true;
-    currentLibrary->currentBooksAmount++;
-}
-
-void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAuthor[], char bookCategory[], u8 bookTitleLength, u8 bookAuthorLength, u8 bookCategoryLength)
-{
-
-
-    copyString(currentLibrary->books[bookId].author, bookAuthor, maxStringLength, bookAuthorLength); //currentLibrary->books[bookId].author = bookAuthor
-    copyString(currentLibrary->books[bookId].title, bookTitle, maxStringLength, bookTitleLength); //currentLibrary->books[bookId].title = bookTitle
-    copyString(currentLibrary->books[bookId].category, bookCategory, maxStringLength, bookCategoryLength); //currentLibrary->books[bookId].category = bookCategory
-    currentLibrary->books[bookId].isEmpty = false;
-    currentLibrary->currentBooksAmount--; // and there will be another function deleteBook, which will increment this value
 }
 
 void findMaxBookValuesLength(library *currentLibrary)
@@ -475,6 +315,8 @@ void printBooksAlignment(library *currentLibrary)
     printf("\n");
 }
 
+
+
 void printBooks(library *currentLibrary)
 {
     printBooksAlignment(currentLibrary);
@@ -519,6 +361,174 @@ void printBooks(library *currentLibrary)
 
 
 }
+
+void inputId(library *currentLibrary)
+{
+    printf("Enter Book ID: ");
+    char userInput;
+    char idMembers[maxIdLength + fgetsAdder]; //+2 because \n and \0
+    fgets(idMembers, maxIdLength + fgetsAdder, stdin);
+
+    i16 slashNPos = findSlashNInString(idMembers, maxIdLength + fgetsAdder);
+    if (slashNPos == -1) 
+    {
+	CLEAR_STDIN;
+	selectCorrectId;
+    }
+
+    if (slashNPos == 0) 
+    {
+	selectCorrectId;
+    }
+
+    i16 bookId = tryParseStringToInt(idMembers, slashNPos);
+    if (bookId == -1 || currentLibrary->books[bookId].isEmpty == false)
+    {
+	selectCorrectId;
+    }
+   
+    currentLibrary->currentInputBook.inputBookId = bookId;
+    
+    
+}
+
+
+
+void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - author, 3 - category 
+{
+    switch (choosedInput) 
+    {
+    case 1:
+	printf("Enter Book Title (max %d symbols): ", maxStringLength);
+	fgets(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder, stdin);
+	break;
+    case 2:
+	printf("Enter Book Author (max %d symbols): ", maxStringLength);
+	fgets(currentLibrary->currentInputBook.author, maxStringLength + fgetsAdder, stdin);
+	break;
+    case 3:
+	printf("Enter Book Category (max %d symbols): ", maxStringLength);
+	fgets(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder, stdin);
+	break;
+    }
+
+
+    i16 slashNPos;
+    switch (choosedInput) 
+    {
+    case 1:
+	slashNPos = findSlashNInString(currentLibrary->currentInputBook.title, maxStringLength + fgetsAdder);
+	break;
+    case 2:
+	slashNPos = findSlashNInString(currentLibrary->currentInputBook.author, maxStringLength + fgetsAdder);
+	break;
+    case 3:
+	slashNPos = findSlashNInString(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder);
+	break;
+    }
+    if (slashNPos == 0) 
+    {
+	switch (choosedInput) 
+	{
+	case 1:
+	    printf("Enter correct book title!\n");
+	    break;
+	case 2:
+	    printf("Enter correct book author!\n");
+	    break;
+	case 3:
+	    printf("Enter correct book category!\n");
+	    break;
+	}
+	inputString(currentLibrary, choosedInput);
+	return;
+    }
+
+    if (slashNPos == -1) 
+    {
+	switch (choosedInput) 
+	{
+	case 1:
+	    printf("Enter correct book title (max %d symbols)!\n", maxStringLength);
+	    break;
+	case 2:
+	    printf("Enter correct book author (max %d symbols)!\n", maxStringLength);
+	    break;
+	case 3:
+	    printf("Enter correct book category (max %d symbols)!\n", maxStringLength);
+	    break;
+	}
+	CLEAR_STDIN;
+	inputString(currentLibrary, choosedInput);
+	return;
+    }
+    switch (choosedInput) 
+    {
+    case 1:
+	currentLibrary->currentInputBook.inputTitleLength = findStringLength(currentLibrary->currentInputBook.title);
+	currentLibrary->currentInputBook.title[slashNPos] = '\0';
+	break;
+    case 2:
+	currentLibrary->currentInputBook.inputAuthorLength = findStringLength(currentLibrary->currentInputBook.author);
+	currentLibrary->currentInputBook.author[slashNPos] = '\0';
+	break;
+    case 3:
+	currentLibrary->currentInputBook.inputCategoryLength = findStringLength(currentLibrary->currentInputBook.category);
+	currentLibrary->currentInputBook.category[slashNPos] = '\0';
+	break;
+    }
+
+}
+
+void inputOption(library *currentLibrary)
+{
+    printf("Enter option (1-5): ");
+    char userBuffer[3]; //HARDCODED!
+    fgets(userBuffer, 3, stdin);
+    if (userBuffer[0] == '\n' || in("12345", 5, userBuffer[0]) == false)
+    {
+	selectCorrectOption;
+    }
+    if (userBuffer[1] != '\n')
+    {
+        CLEAR_STDIN;
+	selectCorrectOption;
+    }
+
+    switch (userBuffer[0])
+    {
+    case '1':
+	checkLibraryFilled(currentLibrary);
+	inputId(currentLibrary);
+	inputString(currentLibrary, 1);
+	inputString(currentLibrary, 2);
+	inputString(currentLibrary, 3);
+	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId - 1, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
+        break;
+    case '2':
+	printBooks(currentLibrary);
+        break;
+    case '3':
+        break;
+    case '4':
+	
+        break;
+    case '5':
+	exit(0);
+    }
+}
+
+void deleteBook(library *currentLibrary, i16 bookId) 
+{
+    currentLibrary->books[bookId].isEmpty = true;
+    currentLibrary->currentBooksAmount++;
+}
+
+
+
+
+
+
 
 
 
