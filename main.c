@@ -319,6 +319,11 @@ void printBooksAlignment(library *currentLibrary)
 
 void printBooks(library *currentLibrary)
 {
+    if (currentLibrary->currentBooksAmount == 0) 
+    {
+	printf("There is no books in library! Add some!\n");
+	return;
+    }
     printBooksAlignment(currentLibrary);
     for (u16 i = 0; i < maxAmountOfBooks; ++i)
     {
@@ -504,6 +509,7 @@ void inputOption(library *currentLibrary)
 	inputString(currentLibrary, 2);
 	inputString(currentLibrary, 3);
 	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId - 1, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
+	printf("Book added successfully!\n");
         break;
     case '2':
 	printBooks(currentLibrary);
@@ -524,15 +530,6 @@ void deleteBook(library *currentLibrary, i16 bookId)
     currentLibrary->currentBooksAmount++;
 }
 
-
-
-
-
-
-
-
-
-
 int main(void)
 {
     //initializing variables
@@ -549,7 +546,10 @@ int main(void)
         mainLibrary.books[i].isEmpty = true;
     }
     startingGreeting();
-    inputOption(&mainLibrary);
+    while (1) 
+    {
+	inputOption(&mainLibrary);
+    }
 
     //IN INPUT THE ID VALUE WILL GET DICREMENT: e.g. "ENTER BOOK ID (1-100)" WILL OUTPUT ONLY 0-99 values!
     // there is no matter for any input from user, because program only reads first character (and some concrete other)!
