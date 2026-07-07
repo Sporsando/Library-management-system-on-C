@@ -316,7 +316,6 @@ void printBooksAlignment(library *currentLibrary)
 }
 
 
-
 void printBooks(library *currentLibrary)
 {
     if (currentLibrary->currentBooksAmount == 0) 
@@ -381,17 +380,12 @@ void inputId(library *currentLibrary)
 	selectCorrectId;
     }
 
-    if (slashNPos == 0) 
-    {
-	selectCorrectId;
-    }
-
     i16 bookId = tryParseStringToInt(idMembers, slashNPos);
-    if (bookId == -1 || currentLibrary->books[bookId].isEmpty == false)
+    if (slashNPos == 0 || bookId == -1 || currentLibrary->books[bookId].isEmpty == false || bookId == 0)
     {
 	selectCorrectId;
     }
-   
+    bookId--;
     currentLibrary->currentInputBook.inputBookId = bookId;
     
     
@@ -508,7 +502,7 @@ void inputOption(library *currentLibrary)
 	inputString(currentLibrary, 1);
 	inputString(currentLibrary, 2);
 	inputString(currentLibrary, 3);
-	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId - 1, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
+	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId + 1, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
 	printf("Book added successfully!\n");
         break;
     case '2':
