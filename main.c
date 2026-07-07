@@ -233,7 +233,7 @@ void addCorrectValueToFinal(i16 numToCheck, i16 otherNum, u16 *finalLength)
 {
     if (numToCheck >= 0)
     {
-        *finalLength += numToCheck;
+        *finalLength += numToCheck + otherNum;
     } else
     {
         *finalLength += otherNum;
@@ -244,21 +244,22 @@ void printCorrectSpacesId(u16 currentId) //PROBABLY HARDCODED WITH 2 SPACES BETW
 {
     if (currentId < 10)
     {
-        printf("  %s", columnSeparator);
+	printCorrectAmountSpaces(maxIdLength - 1);
     } else if (currentId < 100)
     {
-        printf(" %s", columnSeparator);
-    } else
+	printCorrectAmountSpaces(maxIdLength - 2);
+    } else if (currentId < 1000)
     {
-        printf(" |");
+	printCorrectAmountSpaces(maxIdLength - 3);
     }
+    printf("%s", columnSeparator);
 }
 
 void printRowDashes(u16 amountToPrint, library *currentLibrary)
 {
     for (u16 i = 0; i < amountToPrint; ++i)
     {
-        if (i == currentLibrary->edgeIdTitle || i == currentLibrary->edgeTitleAuthor || i == currentLibrary->edgeAuthorCategory)
+        if (i == currentLibrary->edgeIdTitle || i == currentLibrary->edgeTitleAuthor || i == currentLibrary->edgeAuthorCategory || i == amountToPrint - 1)
         {
             printf("|");
         } else
@@ -293,25 +294,29 @@ void findNewLibraryEdges(library *currentLibrary)
 void printBooksAlignment(library *currentLibrary)
 {
     u16 finalTableLength = 0;
-    printf("ID %sTITLE", columnSeparator);
-    finalTableLength += (3 + columnSeparatorLength + 5);
+    printf("ID");
+    printCorrectAmountSpaces(maxIdLength - 2);
+    printf("%sTITLE", columnSeparator);
+    finalTableLength += (maxIdLength + columnSeparatorLength + 5);
     findMaxBookValuesLength(currentLibrary);
     printCorrectAmountSpaces(currentLibrary->maxBookTitleLength - 5);
     addCorrectValueToFinal(currentLibrary->maxBookTitleLength - 5, columnSeparatorLength, &finalTableLength);
+
     printf("%sAUTHOR", columnSeparator);
-    finalTableLength += (columnSeparatorLength + authorLength);
+    finalTableLength += authorLength;
     printCorrectAmountSpaces(currentLibrary->maxBookAuthorLength - 6);
     addCorrectValueToFinal(currentLibrary->maxBookAuthorLength - 6, columnSeparatorLength, &finalTableLength);
+
     printf("%sCATEGORY", columnSeparator);
-    finalTableLength += (columnSeparatorLength + categoryLength);
+    finalTableLength += categoryLength;
     printCorrectAmountSpaces(currentLibrary->maxBookCategoryLength - 8);
     addCorrectValueToFinal(currentLibrary->maxBookCategoryLength - 8, columnSeparatorLength, &finalTableLength);
+
     printf("%s", columnSeparator);
     printf("\n");
-    finalTableLength++;
+    //print line after id, title, author etc
     findNewLibraryEdges(currentLibrary);
     printRowDashes(finalTableLength, currentLibrary);
-    printf("|");
     printf("\n");
 }
 
@@ -328,7 +333,7 @@ void printBooks(library *currentLibrary)
     {
         if (currentLibrary->books[i].isEmpty == false)
         {
-            printf("%u", i);
+            printf("%u", i + 1);
             printCorrectSpacesId(i);
             printf("%s", currentLibrary->books[i].title);
             u8 titleLength = (sizeof("TITLE") / sizeof(char)) - 1;
@@ -381,11 +386,16 @@ void inputId(library *currentLibrary)
     }
 
     i16 bookId = tryParseStringToInt(idMembers, slashNPos);
-    if (slashNPos == 0 || bookId == -1 || currentLibrary->books[bookId].isEmpty == false || bookId == 0)
+    if (slashNPos == 0 || bookId == -1 || bookId == 0)
     {
 	selectCorrectId;
     }
     bookId--;
+    if (currentLibrary->books[bookId].isEmpty == false) 
+    {
+	printf("There is a book on that ID!\n");
+	inputId(currentLibrary);
+    }
     currentLibrary->currentInputBook.inputBookId = bookId;
     
     
@@ -502,7 +512,7 @@ void inputOption(library *currentLibrary)
 	inputString(currentLibrary, 1);
 	inputString(currentLibrary, 2);
 	inputString(currentLibrary, 3);
-	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId + 1, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
+	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
 	printf("Book added successfully!\n");
         break;
     case '2':
@@ -532,8 +542,8 @@ int main(void)
     mainLibrary.maxBookTitleLength = 0;
     mainLibrary.maxBookAuthorLength = 0;
     mainLibrary.maxBookCategoryLength = 0;
-    mainLibrary.edgeIdTitle = 3 + columnSeparatorLength - 1;
-    mainLibrary.edgeTitleAuthor = 3 + columnSeparatorLength - 1;
+    mainLibrary.edgeIdTitle = maxIdLength + columnSeparatorLength - 1;
+    mainLibrary.edgeTitleAuthor = maxIdLength + columnSeparatorLength - 1;
     mainLibrary.edgeAuthorCategory = 0;
     for (u16 i = 0; i < maxAmountOfBooks; ++i)
     {
@@ -547,14 +557,10 @@ int main(void)
 
     //IN INPUT THE ID VALUE WILL GET DICREMENT: e.g. "ENTER BOOK ID (1-100)" WILL OUTPUT ONLY 0-99 values!
     // there is no matter for any input from user, because program only reads first character (and some concrete other)!
-    addBook(&mainLibrary, 1, "testBook", "me", "sci-fi", (sizeof("testbook") / sizeof(char)), (sizeof("me") / sizeof(char)), (sizeof("sci-fi") / sizeof(char)));
-    addBook(&mainLibrary, 30, "anotherTestBook", "director", "psychological", (sizeof("anotherTestBook") / sizeof(char)), (sizeof("director") / sizeof(char)), (sizeof("psychological") / sizeof(char)));
-    addBook(&mainLibrary, 73, "anotheranotherBook", "person", "drama", (sizeof("anotheranotherBook") / sizeof(char)), (sizeof("person") / sizeof(char)), (sizeof("drama") / sizeof(char)));
-    addBook(&mainLibrary, 35, "someBook", "people", "comedy", (sizeof("someBook") / sizeof(char)), (sizeof("people") / sizeof(char)), (sizeof("comedy") / sizeof(char)));
-
-    printBooks(&mainLibrary);
-
-
+    //addBook(&mainLibrary, 1, "testBook", "me", "sci-fi", (sizeof("testbook") / sizeof(char)), (sizeof("me") / sizeof(char)), (sizeof("sci-fi") / sizeof(char)));
+    //addBook(&mainLibrary, 30, "anotherTestBook", "director", "psychological", (sizeof("anotherTestBook") / sizeof(char)), (sizeof("director") / sizeof(char)), (sizeof("psychological") / sizeof(char)));
+    //addBook(&mainLibrary, 73, "anotheranotherBook", "person", "drama", (sizeof("anotheranotherBook") / sizeof(char)), (sizeof("person") / sizeof(char)), (sizeof("drama") / sizeof(char)));
+    //addBook(&mainLibrary, 35, "someBook", "people", "comedy", (sizeof("someBook") / sizeof(char)), (sizeof("people") / sizeof(char)), (sizeof("comedy") / sizeof(char)));
 
     return 0;
 }
