@@ -176,19 +176,6 @@ void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAut
     currentLibrary->currentBooksAmount++; 
 }
 
-void searchBook(library *currentLibrary, i16 bookId) 
-{
-    if (currentLibrary->books[bookId].isEmpty == true) 
-    {
-	printf("There is no book on that ID!\n");
-	return;
-    }
-    printf("Book ID: %d\n", bookId);
-    printf("Title: %s\n", currentLibrary->books[bookId].title);
-    printf("Author: %s\n", currentLibrary->books[bookId].author);
-    printf("Category: %s\n", currentLibrary->books[bookId].category);
-}
-
 void printCharacterSpecificAmount(u16 amount, char characterToPrint)
 {
     for (u16 i = 0; i < amount; i++)
@@ -508,6 +495,33 @@ void inputBookValues(library *currentLibrary)
     inputString(currentLibrary, 3);
 }
 
+void searchBook(library *currentLibrary) 
+{
+    inputId(currentLibrary);
+    if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == true) 
+    {
+	printf("There is no book on that ID!\n");
+	return;
+    }
+    printf("Book ID: %d\n", currentLibrary->currentInputBook.inputBookId + 1);
+    printf("Title: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].title);
+    printf("Author: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].author);
+    printf("Category: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].category);
+}
+
+void deleteBook(library *currentLibrary, i16 bookId) 
+{
+    inputId(currentLibrary);
+    if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == false) 
+    {
+	printf("Are you sure to delete book on ID %d?(Y / N)", currentLibrary->currentInputBook.inputBookId);
+    }
+    currentLibrary->books[bookId].isEmpty = true;
+    currentLibrary->currentBooksAmount++;
+}
+
+
+
 void inputOption(library *currentLibrary)
 {
     printf("Enter option (1-5): ");
@@ -538,8 +552,7 @@ void inputOption(library *currentLibrary)
 	printBooks(currentLibrary);
         break;
     case '3':
-	inputId(currentLibrary);
-	searchBook(currentLibrary, currentLibrary->currentInputBook.inputBookId);
+	searchBook(currentLibrary);
         break;
     case '4':
 	
@@ -547,12 +560,6 @@ void inputOption(library *currentLibrary)
     case '5':
 	exit(0);
     }
-}
-
-void deleteBook(library *currentLibrary, i16 bookId) 
-{
-    currentLibrary->books[bookId].isEmpty = true;
-    currentLibrary->currentBooksAmount++;
 }
 
 int main(void)
