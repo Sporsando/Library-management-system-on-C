@@ -271,6 +271,10 @@ void printRowDashes(u16 amountToPrint, library *currentLibrary)
 
 void findNewLibraryEdges(library *currentLibrary)
 {
+    currentLibrary->edgeIdTitle = maxIdLength + columnSeparatorLength - 1;
+    currentLibrary->edgeTitleAuthor = maxIdLength + columnSeparatorLength - 1;
+    currentLibrary->edgeAuthorCategory = 0;
+ 
     if (titleLength > currentLibrary->maxBookTitleLength)
     {
         currentLibrary->edgeTitleAuthor += titleLength;
