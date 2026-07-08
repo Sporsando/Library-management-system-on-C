@@ -186,6 +186,10 @@ void printCharacterSpecificAmount(u16 amount, char characterToPrint)
 
 void findMaxBookValuesLength(library *currentLibrary)
 {
+    currentLibrary->maxBookTitleLength = 0;
+    currentLibrary->maxBookAuthorLength = 0;
+    currentLibrary->maxBookCategoryLength = 0;
+
     for (u16 i = 0; i < maxAmountOfBooks; ++i)
     {
         if (currentLibrary->books[i].isEmpty == false)
