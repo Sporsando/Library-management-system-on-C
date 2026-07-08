@@ -82,15 +82,6 @@ bool isBookIdInBoundaries(i8 bookIdToCheck)
     return true;
 }
 
-void checkLibraryFilled(library *currentLibrary)
-{
-    if (currentLibrary->currentBooksAmount == maxAmountOfBooks)
-    {
-	printf("Library is already full!\n");
-	return;
-    }
-}
-
 void copyString(char stringForCopy[], char stringToCopy[], u8 stringForCopyLength, u8 stringToCopyLength)
 {
     if (stringForCopyLength >= stringToCopyLength)
@@ -180,8 +171,22 @@ void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAut
     copyString(currentLibrary->books[bookId].title, bookTitle, maxStringLength, bookTitleLength); //currentLibrary->books[bookId].title = bookTitle
     copyString(currentLibrary->books[bookId].author, bookAuthor, maxStringLength, bookAuthorLength); //currentLibrary->books[bookId].author = bookAuthor
     copyString(currentLibrary->books[bookId].category, bookCategory, maxStringLength, bookCategoryLength); //currentLibrary->books[bookId].category = bookCategory
+    printf("Book added successfully!\n");
     currentLibrary->books[bookId].isEmpty = false;
-    currentLibrary->currentBooksAmount--; // and there will be another function deleteBook, which will increment this value
+    currentLibrary->currentBooksAmount++; 
+}
+
+void searchBook(library *currentLibrary, i16 bookId) 
+{
+    if (currentLibrary->books[bookId].isEmpty == true) 
+    {
+	printf("There is no book on that ID!\n");
+	return;
+    }
+    printf("Book ID: %d\n", bookId);
+    printf("Title: %s\n", currentLibrary->books[bookId].title);
+    printf("Author: %s\n", currentLibrary->books[bookId].author);
+    printf("Category: %s\n", currentLibrary->books[bookId].category);
 }
 
 void printCharacterSpecificAmount(u16 amount, char characterToPrint)
@@ -395,12 +400,7 @@ void inputId(library *currentLibrary)
 	selectCorrectId;
     }
     bookId--;
-    if (currentLibrary->books[bookId].isEmpty == false) 
-    {
-	printf("There is a book on that ID!\n");
-	inputId(currentLibrary);
-    }
-    currentLibrary->currentInputBook.inputBookId = bookId;
+   currentLibrary->currentInputBook.inputBookId = bookId;
     
     
 }
@@ -493,6 +493,21 @@ void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - auth
 
 }
 
+void inputBookValues(library *currentLibrary) 
+{
+    inputId(currentLibrary);
+    if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == false) 
+    {
+	printf("There is a book on that ID!\n");
+	inputBookValues(currentLibrary);
+	return;
+    }
+ 
+    inputString(currentLibrary, 1);
+    inputString(currentLibrary, 2);
+    inputString(currentLibrary, 3);
+}
+
 void inputOption(library *currentLibrary)
 {
     printf("Enter option (1-5): ");
@@ -511,18 +526,20 @@ void inputOption(library *currentLibrary)
     switch (userBuffer[0])
     {
     case '1':
-	checkLibraryFilled(currentLibrary);
-	inputId(currentLibrary);
-	inputString(currentLibrary, 1);
-	inputString(currentLibrary, 2);
-	inputString(currentLibrary, 3);
+	if (currentLibrary->currentBooksAmount == maxAmountOfBooks)
+	{
+	    printf("Library is already full!\n");
+	    break;
+	}
+	inputBookValues(currentLibrary);
 	addBook(currentLibrary, currentLibrary->currentInputBook.inputBookId, currentLibrary->currentInputBook.title, currentLibrary->currentInputBook.author, currentLibrary->currentInputBook.category, currentLibrary->currentInputBook.inputTitleLength, currentLibrary->currentInputBook.inputAuthorLength, currentLibrary->currentInputBook.inputCategoryLength);
-	printf("Book added successfully!\n");
         break;
     case '2':
 	printBooks(currentLibrary);
         break;
     case '3':
+	inputId(currentLibrary);
+	searchBook(currentLibrary, currentLibrary->currentInputBook.inputBookId);
         break;
     case '4':
 	
