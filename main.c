@@ -509,15 +509,58 @@ void searchBook(library *currentLibrary)
     printf("Category: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].category);
 }
 
-void deleteBook(library *currentLibrary, i16 bookId) 
+void finalStepDeleteBook(library *currentLibrary) 
+{
+    printf("Are you sure to delete book on ID %d?(Y / N): ", currentLibrary->currentInputBook.inputBookId + 1);
+    char selectedOption[1 + fgetsAdder];
+    fgets(selectedOption, 1 + fgetsAdder, stdin);
+
+    if (selectedOption[0] == '\n') 
+    {
+	printf("Select correct option (Y / N)!\n");
+	finalStepDeleteBook(currentLibrary);
+	return;
+    }
+
+    if (selectedOption[1] != '\n') 
+    {
+	printf("Select correct option (Y / N)!\n");
+	CLEAR_STDIN;
+	finalStepDeleteBook(currentLibrary);
+	return;
+    }
+
+    if (selectedOption[0] != 'Y' && selectedOption[0] != 'N') 
+    {
+	printf("Select correct option (Y / N)!\n");
+	finalStepDeleteBook(currentLibrary);
+	return;
+    }
+
+    switch (selectedOption[0]) 
+    {
+    case 'Y':
+	currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty = true;
+	currentLibrary->currentBooksAmount--;
+	printf("Book at ID %d deleted successfully!\n", currentLibrary->currentInputBook.inputBookId + 1);
+	break;
+    case 'N':
+	break;
+    }
+}
+
+void deleteBook(library *currentLibrary) 
 {
     inputId(currentLibrary);
-    if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == false) 
+
+    if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == true) 
     {
-	printf("Are you sure to delete book on ID %d?(Y / N)", currentLibrary->currentInputBook.inputBookId);
+	printf("There is no book on that ID! Nothing to delete!\n");
+	return;
     }
-    currentLibrary->books[bookId].isEmpty = true;
-    currentLibrary->currentBooksAmount++;
+
+    finalStepDeleteBook(currentLibrary);
+
 }
 
 
@@ -555,7 +598,7 @@ void inputOption(library *currentLibrary)
 	searchBook(currentLibrary);
         break;
     case '4':
-	
+	deleteBook(currentLibrary);
         break;
     case '5':
 	exit(0);
