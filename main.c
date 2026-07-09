@@ -451,7 +451,7 @@ void inputId(library *currentLibrary)
     }
 
     i16 bookId = tryParseStringToInt(idMembers, slashNPos);
-    if (slashNPos == 0 || bookId == -1 || bookId == 0)
+    if (slashNPos == 0 || bookId == -1 || bookId == 0 || bookId > maxAmountOfBooks)
     {
 	selectCorrectId;
     }
