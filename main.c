@@ -18,21 +18,38 @@ typedef int16_t i16;
 
 #define columnSeparator " |"
 #define columnSeparatorLength (sizeof(columnSeparator) / sizeof(char)) - 1
+#define printColumnSeparator START_COLOR(33); \
+	printf("%s", columnSeparator); \
+	STOP_COLOR
+
 #define edgeID_TITLE maxIdLength + columnSeparatorLength
 #define edgeTITLE_AUTHOR(currentLibrary) edgeID_TITLE + (titleLength > (currentLibrary)->maxBookTitleLength) ? titleLength : (currentLibrary)->maxBookTitleLength + columnSeparatorLength
 #define edgeAUTHOR_CATEGORY(currentLibrary) edgeTITLE_AUTHOR((currentLibrary)) + (authorLength > (currentLibrary)->maxBookAuthorLength) ? authorLength : (currentLibrary)->maxBookAuthorLength + columnSeparatorLength
 
-#define selectCorrectId printf("Select correct id (1-%d)!\n", maxAmountOfBooks); \
+#define selectCorrectId START_COLOR(31); \
+	printf("Select correct id (1-%d)!\n", maxAmountOfBooks); \
+	STOP_COLOR; \
 	inputId(currentLibrary); \
 	return
 
-#define selectCorrectOption messageSelectCorrectOption; \
+#define selectCorrectOption START_COLOR(31); \
+	messageSelectCorrectOption; \
+	STOP_COLOR; \
         inputOption(currentLibrary); \
         return
+
+#define selectCorrectDeleteOption START_COLOR(31); \
+	printf("Select correct option (Y / N)!\n"); \
+	STOP_COLOR; \
+	finalStepDeleteBook(currentLibrary); \
+	return
 
 
 #define CLEAR_STDIN char input; \
     while ((input = getchar()) != '\n' && input != EOF)
+
+#define START_COLOR(color) printf("\033[%dm", (color))
+#define STOP_COLOR printf("\033[0m")
 
 
 const u8 titleLength = (sizeof("TITLE") / sizeof(char)) - 1;
@@ -122,18 +139,20 @@ u8 typecastCharToDigit(char charToCast)
 
 void printInstructions(void)
 {
+    START_COLOR(33);
     printf("1. Add Book\n");
     printf("2. Display Books\n");
     printf("3. Search Book\n");
     printf("4. Delete Book\n");
     printf("5. Exit\n");
+    STOP_COLOR;
 }
 
 void startingGreeting(void)
 {
+    START_COLOR(32);
     printf("Welcome to library management system!\n");
-    printInstructions();
-
+    STOP_COLOR;
 }
 
 
@@ -159,7 +178,7 @@ i16 tryParseStringToInt(char *string, u16 stringLength)
 	{
 	    return -1;
 	}
-	parsedString += typecastCharToDigit(string[i]) * (i8)round(pow(10, stringLength - 1 - i)); 
+	parsedString += typecastCharToDigit(string[i]) * (i16)round(pow(10, stringLength - 1 - i)); 
 
     }
     return parsedString;
@@ -171,7 +190,9 @@ void addBook(library *currentLibrary, i16 bookId, char bookTitle[], char bookAut
     copyString(currentLibrary->books[bookId].title, bookTitle, maxStringLength, bookTitleLength); //currentLibrary->books[bookId].title = bookTitle
     copyString(currentLibrary->books[bookId].author, bookAuthor, maxStringLength, bookAuthorLength); //currentLibrary->books[bookId].author = bookAuthor
     copyString(currentLibrary->books[bookId].category, bookCategory, maxStringLength, bookCategoryLength); //currentLibrary->books[bookId].category = bookCategory
+    START_COLOR(32);
     printf("Book added successfully!\n");
+    STOP_COLOR;
     currentLibrary->books[bookId].isEmpty = false;
     currentLibrary->currentBooksAmount++; 
 }
@@ -247,12 +268,18 @@ void printCorrectSpacesId(u16 currentId) //PROBABLY HARDCODED WITH 2 SPACES BETW
     } else if (currentId < 1000)
     {
 	printCorrectAmountSpaces(maxIdLength - 3);
+    } else if (currentId < 10000)
+    {
+	printCorrectAmountSpaces(maxIdLength - 4);
     }
-    printf("%s", columnSeparator);
+
+    STOP_COLOR;
+    printColumnSeparator;
 }
 
 void printRowDashes(u16 amountToPrint, library *currentLibrary)
 {
+    START_COLOR(33);
     for (u16 i = 0; i < amountToPrint; ++i)
     {
         if (i == currentLibrary->edgeIdTitle || i == currentLibrary->edgeTitleAuthor || i == currentLibrary->edgeAuthorCategory || i == amountToPrint - 1)
@@ -263,6 +290,7 @@ void printRowDashes(u16 amountToPrint, library *currentLibrary)
             printf("-");
         }
     }
+    STOP_COLOR;
 }
 
 void findNewLibraryEdges(library *currentLibrary)
@@ -294,25 +322,36 @@ void findNewLibraryEdges(library *currentLibrary)
 void printBooksAlignment(library *currentLibrary)
 {
     u16 finalTableLength = 0;
+    START_COLOR(32);
     printf("ID");
+    STOP_COLOR;
     printCorrectAmountSpaces(maxIdLength - 2);
-    printf("%sTITLE", columnSeparator);
+    printColumnSeparator;
+    START_COLOR(32);
+    printf("TITLE");
+    STOP_COLOR;
     finalTableLength += (maxIdLength + columnSeparatorLength + 5);
     findMaxBookValuesLength(currentLibrary);
     printCorrectAmountSpaces(currentLibrary->maxBookTitleLength - 5);
     addCorrectValueToFinal(currentLibrary->maxBookTitleLength - 5, columnSeparatorLength, &finalTableLength);
 
-    printf("%sAUTHOR", columnSeparator);
+    printColumnSeparator;
+    START_COLOR(32);
+    printf("AUTHOR");
+    STOP_COLOR;
     finalTableLength += authorLength;
     printCorrectAmountSpaces(currentLibrary->maxBookAuthorLength - 6);
     addCorrectValueToFinal(currentLibrary->maxBookAuthorLength - 6, columnSeparatorLength, &finalTableLength);
 
-    printf("%sCATEGORY", columnSeparator);
+    printColumnSeparator;
+    START_COLOR(32);
+    printf("CATEGORY");
+    STOP_COLOR;
     finalTableLength += categoryLength;
     printCorrectAmountSpaces(currentLibrary->maxBookCategoryLength - 8);
     addCorrectValueToFinal(currentLibrary->maxBookCategoryLength - 8, columnSeparatorLength, &finalTableLength);
 
-    printf("%s", columnSeparator);
+    printColumnSeparator;
     printf("\n");
     //print line after id, title, author etc
     findNewLibraryEdges(currentLibrary);
@@ -320,12 +359,51 @@ void printBooksAlignment(library *currentLibrary)
     printf("\n");
 }
 
+void absIfPrint(library *currentLibrary, u16 firstValue, u8 secondValue, u8 option, u16 id) //1 - title, 2 - author, 3 - category 
+{
+    if (firstValue > secondValue)
+    {
+	switch (option) 
+	{
+	case 1:
+	    printCharacterSpecificAmount(firstValue - findStringLength(currentLibrary->books[id].title), ' ');
+	    break;
+	case 2:
+	    printCharacterSpecificAmount(firstValue - findStringLength(currentLibrary->books[id].author), ' ');
+	    break;
+	case 3:
+	    printCharacterSpecificAmount(firstValue - findStringLength(currentLibrary->books[id].category), ' ');
+	    break;
+	}
+    } else
+    {
+	switch (option) 
+	{
+	case 1:
+	    printCharacterSpecificAmount(secondValue - findStringLength(currentLibrary->books[id].title), ' ');
+	    break;
+	case 2:
+	    printCharacterSpecificAmount(secondValue - findStringLength(currentLibrary->books[id].author), ' ');
+	    break;
+	case 3:
+	    printCharacterSpecificAmount(secondValue - findStringLength(currentLibrary->books[id].category), ' ');
+	    break;
+	}
+    }
+    
+    STOP_COLOR;
+    printColumnSeparator;
+
+}
+
 
 void printBooks(library *currentLibrary)
 {
     if (currentLibrary->currentBooksAmount == 0) 
     {
+	START_COLOR(35);
 	printf("There is no books in library! Add some!\n");
+	STOP_COLOR;
 	return;
     }
     printBooksAlignment(currentLibrary);
@@ -333,36 +411,21 @@ void printBooks(library *currentLibrary)
     {
         if (currentLibrary->books[i].isEmpty == false)
         {
+	    START_COLOR(32);
             printf("%u", i + 1);
-            printCorrectSpacesId(i);
+            printCorrectSpacesId(i + 1);
+	    START_COLOR(32);
             printf("%s", currentLibrary->books[i].title);
-            u8 titleLength = (sizeof("TITLE") / sizeof(char)) - 1;
-            if (currentLibrary->maxBookTitleLength > titleLength)
-            {
-                printCharacterSpecificAmount(currentLibrary->maxBookTitleLength - findStringLength(currentLibrary->books[i].title), ' ');
-            } else
-            {
-                printCharacterSpecificAmount(titleLength - findStringLength(currentLibrary->books[i].title), ' ');
-            }
-            printf("%s", columnSeparator);
+	    absIfPrint(currentLibrary, currentLibrary->maxBookTitleLength, titleLength, 1, i);
+
+	    START_COLOR(32);
             printf("%s", currentLibrary->books[i].author);
-            if (currentLibrary->maxBookAuthorLength > authorLength)
-            {
-                printCharacterSpecificAmount(currentLibrary->maxBookAuthorLength - findStringLength(currentLibrary->books[i].author), ' ');
-            } else
-            {
-                printCharacterSpecificAmount(authorLength - findStringLength(currentLibrary->books[i].author), ' ');
-            }
-            printf("%s", columnSeparator);
+	    absIfPrint(currentLibrary, currentLibrary->maxBookAuthorLength, authorLength, 2, i);
+
+	    START_COLOR(32);
             printf("%s", currentLibrary->books[i].category);
-            if (currentLibrary->maxBookCategoryLength > categoryLength)
-            {
-                printCharacterSpecificAmount(currentLibrary->maxBookCategoryLength - findStringLength(currentLibrary->books[i].category), ' ');
-            } else
-            {
-                printCharacterSpecificAmount(categoryLength - findStringLength(currentLibrary->books[i].category), ' ');
-            }
-            printf("%s", columnSeparator);
+	    absIfPrint(currentLibrary, currentLibrary->maxBookCategoryLength, categoryLength, 3, i);
+
             printf("\n");
         }
     }
@@ -373,7 +436,9 @@ void printBooks(library *currentLibrary)
 
 void inputId(library *currentLibrary)
 {
+    START_COLOR(32);
     printf("Enter Book ID: ");
+    STOP_COLOR;
     char userInput;
     char idMembers[maxIdLength + fgetsAdder]; //+2 because \n and \0
     fgets(idMembers, maxIdLength + fgetsAdder, stdin);
@@ -391,7 +456,7 @@ void inputId(library *currentLibrary)
 	selectCorrectId;
     }
     bookId--;
-   currentLibrary->currentInputBook.inputBookId = bookId;
+    currentLibrary->currentInputBook.inputBookId = bookId;
     
     
 }
@@ -400,6 +465,7 @@ void inputId(library *currentLibrary)
 
 void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - author, 3 - category 
 {
+    START_COLOR(32);
     switch (choosedInput) 
     {
     case 1:
@@ -415,6 +481,7 @@ void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - auth
 	fgets(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder, stdin);
 	break;
     }
+    STOP_COLOR;
 
 
     i16 slashNPos;
@@ -430,6 +497,7 @@ void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - auth
 	slashNPos = findSlashNInString(currentLibrary->currentInputBook.category, maxStringLength + fgetsAdder);
 	break;
     }
+    START_COLOR(31);
     if (slashNPos == 0) 
     {
 	switch (choosedInput) 
@@ -444,6 +512,7 @@ void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - auth
 	    printf("Enter correct book category!\n");
 	    break;
 	}
+	STOP_COLOR;
 	inputString(currentLibrary, choosedInput);
 	return;
     }
@@ -463,9 +532,11 @@ void inputString(library *currentLibrary, u8 choosedInput) //1 - title, 2 - auth
 	    break;
 	}
 	CLEAR_STDIN;
+	STOP_COLOR;
 	inputString(currentLibrary, choosedInput);
 	return;
     }
+    STOP_COLOR;
     switch (choosedInput) 
     {
     case 1:
@@ -504,41 +575,41 @@ void searchBook(library *currentLibrary)
     inputId(currentLibrary);
     if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == true) 
     {
+	START_COLOR(35);
 	printf("There is no book on that ID!\n");
+	STOP_COLOR;
 	return;
     }
+    START_COLOR(35);
     printf("Book ID: %d\n", currentLibrary->currentInputBook.inputBookId + 1);
     printf("Title: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].title);
     printf("Author: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].author);
     printf("Category: %s\n", currentLibrary->books[currentLibrary->currentInputBook.inputBookId].category);
+    STOP_COLOR;
 }
 
 void finalStepDeleteBook(library *currentLibrary) 
 {
-    printf("Are you sure to delete book on ID %d?(Y / N): ", currentLibrary->currentInputBook.inputBookId + 1);
+    START_COLOR(35);
+    printf("Are you sure to delete book on ID %d? (Y / N): ", currentLibrary->currentInputBook.inputBookId + 1);
+    STOP_COLOR;
     char selectedOption[1 + fgetsAdder];
     fgets(selectedOption, 1 + fgetsAdder, stdin);
 
     if (selectedOption[0] == '\n') 
     {
-	printf("Select correct option (Y / N)!\n");
-	finalStepDeleteBook(currentLibrary);
-	return;
+	selectCorrectDeleteOption;
     }
 
     if (selectedOption[1] != '\n') 
     {
-	printf("Select correct option (Y / N)!\n");
 	CLEAR_STDIN;
-	finalStepDeleteBook(currentLibrary);
-	return;
+	selectCorrectDeleteOption;
     }
 
     if (selectedOption[0] != 'Y' && selectedOption[0] != 'N') 
     {
-	printf("Select correct option (Y / N)!\n");
-	finalStepDeleteBook(currentLibrary);
-	return;
+	selectCorrectDeleteOption;
     }
 
     switch (selectedOption[0]) 
@@ -546,7 +617,9 @@ void finalStepDeleteBook(library *currentLibrary)
     case 'Y':
 	currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty = true;
 	currentLibrary->currentBooksAmount--;
+	START_COLOR(32);
 	printf("Book at ID %d deleted successfully!\n", currentLibrary->currentInputBook.inputBookId + 1);
+	STOP_COLOR;
 	break;
     case 'N':
 	break;
@@ -559,7 +632,9 @@ void deleteBook(library *currentLibrary)
 
     if (currentLibrary->books[currentLibrary->currentInputBook.inputBookId].isEmpty == true) 
     {
+	START_COLOR(35);
 	printf("There is no book on that ID! Nothing to delete!\n");
+	STOP_COLOR;
 	return;
     }
 
@@ -571,19 +646,29 @@ void deleteBook(library *currentLibrary)
 
 void inputOption(library *currentLibrary)
 {
+    printInstructions();
+    START_COLOR(32);
     printf("Enter option (1-5): ");
+    STOP_COLOR;
     char userBuffer[3]; //HARDCODED!
     fgets(userBuffer, 3, stdin);
-    if (userBuffer[0] == '\n' || in("12345", 5, userBuffer[0]) == false)
+
+    if (userBuffer[0] == '\n')
     {
 	selectCorrectOption;
     }
+
+
     if (userBuffer[1] != '\n')
     {
         CLEAR_STDIN;
 	selectCorrectOption;
     }
 
+    if (userBuffer[0] == '\n' || in("12345", 5, userBuffer[0]) == false)
+    {
+	selectCorrectOption;
+    }
     switch (userBuffer[0])
     {
     case '1':
@@ -605,6 +690,9 @@ void inputOption(library *currentLibrary)
 	deleteBook(currentLibrary);
         break;
     case '5':
+	START_COLOR(35);
+	printf("Exiting library management system!\n");
+	STOP_COLOR;
 	exit(0);
     }
 }
@@ -624,18 +712,11 @@ int main(void)
     {
         mainLibrary.books[i].isEmpty = true;
     }
+    //start point
     startingGreeting();
     while (1) 
     {
 	inputOption(&mainLibrary);
     }
-
-    //IN INPUT THE ID VALUE WILL GET DICREMENT: e.g. "ENTER BOOK ID (1-100)" WILL OUTPUT ONLY 0-99 values!
-    // there is no matter for any input from user, because program only reads first character (and some concrete other)!
-    //addBook(&mainLibrary, 1, "testBook", "me", "sci-fi", (sizeof("testbook") / sizeof(char)), (sizeof("me") / sizeof(char)), (sizeof("sci-fi") / sizeof(char)));
-    //addBook(&mainLibrary, 30, "anotherTestBook", "director", "psychological", (sizeof("anotherTestBook") / sizeof(char)), (sizeof("director") / sizeof(char)), (sizeof("psychological") / sizeof(char)));
-    //addBook(&mainLibrary, 73, "anotheranotherBook", "person", "drama", (sizeof("anotheranotherBook") / sizeof(char)), (sizeof("person") / sizeof(char)), (sizeof("drama") / sizeof(char)));
-    //addBook(&mainLibrary, 35, "someBook", "people", "comedy", (sizeof("someBook") / sizeof(char)), (sizeof("people") / sizeof(char)), (sizeof("comedy") / sizeof(char)));
-
     return 0;
 }
